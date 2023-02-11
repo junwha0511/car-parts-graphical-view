@@ -3,17 +3,32 @@ import { OrbitControls } from "OrbitControls";
 import { OBJLoader } from "ObjectLoader";
 import { Vector2 } from "three";
 
-const GRAPHIC_VIEW_ID = "#graphic_view";
-const HEIGHT = window.innerHeight;
-const WIDTH = window.innerWidth;
+// Setting: HTML ID's //
+const GRAPHIC_VIEW_ID = "graphic_view";
+const OBJ_CNT_ID = "obj_count";
+const POPUP_PARTS_WINDOW_ID = "parts_popup";
+const POPUP_PARTS_NAME_ID = "popup_part_name";
+const POPUP_PARTS_DRATE_ID = "popup_part_drate";
+
+// Setting: Model //
+const MODEL_LOC = "models/elantra.obj";
 const MODEL_SCALE = 1;
 
+// Setting: canvas size //
+const HEIGHT = window.innerHeight;
+const WIDTH = window.innerWidth;
+
+// Setting: mesh colors //
+const COLOR_DEFAULT = 0x000000;
+const COLOR_DAMAGED = 0xFF0000;
+const COLOR_SELECTED = 0x00AAFF;
+
 // globals // 
-var meshes = []; 
-var damaged_parts = [1, 3];
+var meshes = []; // here, rendered mesh objects will come in
+var damaged_parts = [1, 3]; // TODO: receive damaged parts from the device
 
 // setup //
-const canvas = document.querySelector(GRAPHIC_VIEW_ID);
+const canvas = document.querySelector("#"+GRAPHIC_VIEW_ID);
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true});
 renderer.setSize(WIDTH, HEIGHT);
 document.body.appendChild(renderer.domElement);
@@ -38,18 +53,19 @@ scene.add(light);
 const loader = new OBJLoader();
 loader.load(
 	// resource URL
-	'models/elantra.obj',
+    MODEL_LOC,
 	// called when resource is loaded
 	function ( object ) {
+        // Color with default color
         object.traverse( function (mesh) {
             if (mesh.isMesh) {       
                 mesh.material = new THREE.MeshBasicMaterial();         
-                mesh.material.color = new THREE.Color(0x000000);
+                mesh.material.color = new THREE.Color(COLOR_DEFAULT);
                 meshes.push(mesh);
             } 
         });
         for (var i of damaged_parts) {
-            object.children[i].material.color = new THREE.Color(0xFF0000);
+            object.children[i].material.color = new THREE.Color(COLOR_DAMAGED);
         }
         object.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
         scene.add( object );
@@ -63,6 +79,7 @@ loader.load(
         console.log(error);
 	}
 );
+
 // Ray casting
 const raycaster = new THREE.Raycaster();
 raycaster.params.Line.threshold = 0.1;
@@ -75,26 +92,26 @@ let onMouseMove = function (event) {
     }
     raycaster.setFromCamera( mouse, camera );
     var intersects = raycaster.intersectObjects(meshes);
-    var display
     if (intersects.length > 1) {
-        // console.log(intersects);
         if (last_colored_info !== undefined) {
             last_colored_info.object.material.color = last_colored_info.color;
         }
+        // Backup previous color
         last_colored_info = {};
         last_colored_info.object = intersects[0].object;
         last_colored_info.color = intersects[0].object.material.color;
-        intersects[0].object.material.color = new THREE.Color(0x00AAFF);
-        document.getElementById("obj_count").innerHTML = intersects[0].object.name;   
-        document.getElementById("popup_part_name").innerHTML = intersects[0].object.name;
-        document.getElementById("popup_part_drate").innerHTML = (damaged_parts.includes(meshes.indexOf(intersects[0].object)) ? 100 : 0) + "%"; 
-        Object.assign(document.getElementById("parts_popup").style, {
+        // Assign new color
+        intersects[0].object.material.color = new THREE.Color(COLOR_SELECTED);
+        // Update HTML informations
+        document.getElementById(OBJ_CNT_ID).innerHTML = intersects[0].object.name;   
+        document.getElementById(POPUP_PARTS_NAME_ID).innerHTML = intersects[0].object.name;
+        document.getElementById(POPUP_PARTS_DRATE_ID).innerHTML = (damaged_parts.includes(meshes.indexOf(intersects[0].object)) ? 100 : 0) + "%"; 
+        Object.assign(document.getElementById(POPUP_PARTS_WINDOW_ID).style, {
             left: `${event.clientX}px`,
             top:  `${event.clientY}px`,
             display: "block",
         });
     }   
-
     renderer.render(scene, camera);
 }
 let onMouseClick = function (event) {
@@ -104,18 +121,16 @@ let onMouseClick = function (event) {
     }
     raycaster.setFromCamera( mouse, camera );
     var intersects = raycaster.intersectObjects(meshes);
-    console.log(intersects);
-    console.log(raycaster.far);
-
-    if (intersects.length == 0) {
+    // Unselect all
+    if (intersects.length == 0) { 
         if (last_colored_info.object !== undefined)
             last_colored_info.object.material.color = last_colored_info.color;
         last_colored_info = undefined;
-        document.getElementById("obj_count").innerHTML = "None"; 
+        document.getElementById(OBJ_CNT_ID).innerHTML = "None"; 
         
     } 
-    
-    Object.assign(document.getElementById("parts_popup").style, {
+    // Remove popup
+    Object.assign(document.getElementById(POPUP_PARTS_WINDOW_ID).style, {
         left: `${event.clientX}px`,
         top:  `${event.clientY}px`,
         display: "none",
@@ -123,6 +138,7 @@ let onMouseClick = function (event) {
 }
 canvas.addEventListener('mousemove', onMouseMove);
 canvas.addEventListener('mousedown', onMouseClick);
+
 // Scene builder
 function animate() {
     requestAnimationFrame(animate);
