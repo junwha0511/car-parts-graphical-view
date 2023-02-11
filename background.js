@@ -64,6 +64,7 @@ loader.load(
 );
 // Ray casting
 const raycaster = new THREE.Raycaster();
+raycaster.params.Line.threshold = 0.1;
 var last_colored_info;
 
 let onMouseMove = function (event) {
