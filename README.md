@@ -10,7 +10,9 @@ it renders an OBJ file, and provide the popup and color-highlighting for the spe
 
 ### Files
 `index.html`: main HTML file
+
 `background.html`: Scene builder, OBJ Loader, Ray casting
+
 `models/elantra.obj`: OBJ file to render
 
 ### Video
