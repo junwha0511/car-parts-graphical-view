@@ -9,8 +9,9 @@ const WIDTH = window.innerWidth;
 const MODEL_SCALE = 1;
 
 // globals // 
-var meshes = [];
+var meshes = []; 
 var damaged_parts = [1, 3];
+
 // setup //
 const canvas = document.querySelector(GRAPHIC_VIEW_ID);
 const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true});
@@ -74,7 +75,7 @@ let onMouseMove = function (event) {
     }
     raycaster.setFromCamera( mouse, camera );
     var intersects = raycaster.intersectObjects(meshes);
-
+    var display
     if (intersects.length > 1) {
         // console.log(intersects);
         if (last_colored_info !== undefined) {
@@ -85,7 +86,15 @@ let onMouseMove = function (event) {
         last_colored_info.color = intersects[0].object.material.color;
         intersects[0].object.material.color = new THREE.Color(0x00AAFF);
         document.getElementById("obj_count").innerHTML = intersects[0].object.name;   
-    }
+        document.getElementById("popup_part_name").innerHTML = intersects[0].object.name;
+        document.getElementById("popup_part_drate").innerHTML = (damaged_parts.includes(meshes.indexOf(intersects[0].object)) ? 100 : 0) + "%"; 
+        Object.assign(document.getElementById("parts_popup").style, {
+            left: `${event.clientX}px`,
+            top:  `${event.clientY}px`,
+            display: "block",
+        });
+    }   
+
     renderer.render(scene, camera);
 }
 let onMouseClick = function (event) {
@@ -97,11 +106,20 @@ let onMouseClick = function (event) {
     var intersects = raycaster.intersectObjects(meshes);
     console.log(intersects);
     console.log(raycaster.far);
+
     if (intersects.length == 0) {
-        last_colored_info.object.material.color = last_colored_info.color;
+        if (last_colored_info.object !== undefined)
+            last_colored_info.object.material.color = last_colored_info.color;
         last_colored_info = undefined;
-        document.getElementById("obj_count").innerHTML = "None";   
-    }
+        document.getElementById("obj_count").innerHTML = "None"; 
+        
+    } 
+    
+    Object.assign(document.getElementById("parts_popup").style, {
+        left: `${event.clientX}px`,
+        top:  `${event.clientY}px`,
+        display: "none",
+    });
 }
 canvas.addEventListener('mousemove', onMouseMove);
 canvas.addEventListener('mousedown', onMouseClick);

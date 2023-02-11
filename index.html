@@ -22,7 +22,24 @@
         font-weight: bolder;
     }
     #graphic_view {
-        <!-- margin-top: 100px; -->
+        margin-top: 0px;
+    }
+
+    #parts_popup {
+        position: absolute;
+        height: auto;
+        padding: 5px;
+        background: white;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        display: none;
+    }
+    
+    * {
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
     }
 </style>
 </head>
@@ -32,5 +49,9 @@
         <p id="obj_count">None</p>
     </div>
     <canvas id="graphic_view"></canvas>
+    <div id="parts_popup">
+    <div><p>Name: </p><p id="popup_part_name">None</p></div>
+    <div><p>Deformation: </p><p id="popup_part_drate">0%</p></div>
+    </div>
     <script type="module" src="background.js"></script>
 </body>
