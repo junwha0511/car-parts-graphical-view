@@ -2,17 +2,20 @@ import * as THREE from "three";
 import { OrbitControls } from "OrbitControls";
 import { OBJLoader } from "ObjectLoader";
 
+const GRAPHIC_VIEW_ID = "#graphic_view";
+const HEIGHT = window.innerHeight;
+const WIDTH = window.innerWidth;
+const MODEL_SCALE = 50;
 // setup //
-const renderer = new THREE.WebGLRenderer({ alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+const canvas = document.querySelector(GRAPHIC_VIEW_ID);
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true});
+renderer.setSize(WIDTH, HEIGHT);
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
 const camera = new THREE.PerspectiveCamera(
     45,
-    window.innerWidth / window.innerHeight,
+    WIDTH/HEIGHT,
     1,
     10000
 );
@@ -53,10 +56,11 @@ loader.load(
         });
         // object.children[0].color.set(0xFFB6C1);
 
-        object.scale.set(100, 100, 100);
+        object.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
         scene.add( object );
 
         function changeColor(n, defaultColor, color, t) {
+            document.getElementById("obj_count").innerHTML = n;
             meshes[n].material.color = new THREE.Color(color);
             setTimeout(function(){
                 meshes[n].material.color = new THREE.Color(defaultColor);

@@ -9,7 +9,27 @@
         }
     }
 </script>
+<style>
+    p { display: inline }
+    #indicator {
+        margin: 0px; 
+        padding: 10px; 
+        position: fixed; 
+        font-size:50px;
+        color: black;
+        font-family: Trebuchet;
+        font-weight: bolder;
+    }
+    #graphic_view {
+        <!-- margin-top: 100px; -->
+    }
+</style>
 </head>
 <body>
+    <div id="indicator">
+        <p>Part </p>
+        <p id="obj_count">0</p>
+    </div>
+    <canvas id="graphic_view"></canvas>
     <script type="module" src="background.js"></script>
 </body>
