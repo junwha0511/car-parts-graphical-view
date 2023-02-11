@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "OrbitControls";
 import { OBJLoader } from "ObjectLoader";
-import { Vector2 } from "three";
+import { Vector2, Vector3 } from "three";
 
 // Setting: HTML ID's //
 const GRAPHIC_VIEW_ID = "graphic_view";
@@ -19,17 +19,17 @@ const HEIGHT = window.innerHeight;
 const WIDTH = window.innerWidth;
 
 // Setting: mesh colors //
-const COLOR_DEFAULT = 0x000000;
-const COLOR_DAMAGED = 0xFF0000;
+const COLOR_DEFAULT = 0x111111;
+const COLOR_DAMAGED = 0xFF3333;
 const COLOR_SELECTED = 0x00AAFF;
 
-// globals // 
+// Globals // 
 var meshes = []; // here, rendered mesh objects will come in
 var damaged_parts = [1, 3]; // TODO: receive damaged parts from the device
 
-// setup //
+// Setup //
 const canvas = document.querySelector("#"+GRAPHIC_VIEW_ID);
-const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true});
+const renderer = new THREE.WebGLRenderer({ canvas: canvas });
 renderer.setSize(WIDTH, HEIGHT);
 document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
@@ -39,27 +39,42 @@ const camera = new THREE.PerspectiveCamera(
     1,
     10000
 );
-camera.position.set(10, 10, 10);
+camera.position.set(10, 20, 10);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.update();
 renderer.render(scene, camera);
 
-/// lighting ///
-const light = new THREE.AmbientLight(0xffaaff);
-light.position.set(10, 10, 10);
+/// Lighting ///
+const light = new THREE.SpotLight(0xffffff);
+light.intensity = 1;
+light.position.set(0, 10, 0);
 scene.add(light);
 
-/// geometry ///
+const ambient = new THREE.AmbientLight(0xffffff);
+ambient.intensity = 0.3;
+ambient.position.set(0, 10, 0);
+scene.add(ambient);
+
+// Geometry //
+const geometry = new THREE.CylinderGeometry( 8, 8, 0.5, 100 );
+const material = new THREE.MeshPhongMaterial( {color: 0x303030} );
+const cylinder = new THREE.Mesh( geometry, material );
+cylinder.position.set(0, 0, 0);
+scene.add( cylinder );
+
+/// OBJ Loading ///
 const loader = new OBJLoader();
 loader.load(
 	// resource URL
     MODEL_LOC,
 	// called when resource is loaded
 	function ( object ) {
+        light.target = object;
+        // light.target = object;
         // Color with default color
         object.traverse( function (mesh) {
             if (mesh.isMesh) {       
-                mesh.material = new THREE.MeshBasicMaterial();         
+                mesh.material = new THREE.MeshPhongMaterial();         
                 mesh.material.color = new THREE.Color(COLOR_DEFAULT);
                 meshes.push(mesh);
             } 
