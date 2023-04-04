@@ -1,5 +1,5 @@
 ### Intro
-This is the project for simple graphical view of an Object using OBJLoader of Three.js
+This is the project for implementing a simple graphical view of an Object using OBJLoader of Three.js
 
 it renders an OBJ file, and provide the popup and color-highlighting for the specific mesh where the mouse is on. 
 
